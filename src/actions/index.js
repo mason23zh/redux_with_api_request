@@ -3,8 +3,12 @@ import _ from "lodash";
 
 export const fetchPostsAndUsers = () => async (dispatch, getState) => {
   await dispatch(fetchPosts());
-  const userId = _.uniq(_.map(getState().posts, "userId"));
-  userId.forEach((id) => dispatch(fetchUser(id)));
+
+  _.chain(getState().posts)
+    .map("userid")
+    .uniq()
+    .forEach((id) => dispatch(fetchUser(id)))
+    .value(); //execute
 };
 
 //export const fetchPosts = () => async dispatch => {...}
@@ -13,6 +17,11 @@ export const fetchPosts = () => {
     const response = await jsonPlaceholder.get("/posts");
     dispatch({ type: "FETCH_POSTS", payload: response.data });
   };
+};
+
+export const fetchUser = (id) => async (dispatch) => {
+  const response = await jsonPlaceholder.get(`/users/${id}`);
+  dispatch({ type: "FETCH_USER", payload: response.data });
 };
 
 //export const fetchUser = id => dispatch => _fetchUser(id, dispatch);
@@ -27,8 +36,3 @@ export const fetchPosts = () => {
 //   const response = await jsonPlaceholder.get(`/users/${id}`);
 //   dispatch({ type: "FETCH_USER", payload: response.data });
 // });
-
-export const fetchUser = (id) => async (dispatch) => {
-  const response = await jsonPlaceholder.get(`/users/${id}`);
-  dispatch({ type: "FETCH_USER", payload: response.data });
-};
